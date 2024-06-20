@@ -22,6 +22,12 @@
 			</object>
 		</child>
 		<child>
+			<object class="GtkLabel" id="user-field">
+				<property name="name">user-field</property>
+				<property name="halign">start</property>
+			</object>
+		</child>
+		<child>
 			<object class="GtkRevealer" id="body-revealer">
 				<property name="transition-type">none</property>
 				<property name="reveal-child">0</property>

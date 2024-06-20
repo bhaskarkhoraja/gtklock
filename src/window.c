@@ -46,6 +46,10 @@ void window_update_date(struct Window *ctx) {
 	gtk_label_set_text(GTK_LABEL(ctx->date_label), gtklock->date);
 }
 
+void window_update_username(struct Window *ctx) {
+	gtk_label_set_text(GTK_LABEL(ctx->user_field), gtklock->username);
+}
+
 static void window_setup_messages(struct Window *ctx);
 
 static void window_close_message(GtkInfoBar *bar, gint response, gpointer data) {
@@ -331,6 +335,9 @@ struct Window *create_window(GdkMonitor *monitor) {
 
 	w->input_field = GTK_WIDGET(gtk_builder_get_object(builder, "input-field"));
 	g_signal_connect(w->input_field, "button-press-event", G_CALLBACK(entry_button_press), NULL);
+
+	w->user_field = GTK_WIDGET(gtk_builder_get_object(builder, "user-field"));
+	window_update_username(w);
 
 	w->message_box = GTK_WIDGET(gtk_builder_get_object(builder, "message-box"));
 	w->unlock_button = GTK_WIDGET(gtk_builder_get_object(builder, "unlock-button"));

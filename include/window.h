@@ -16,6 +16,7 @@ struct Window {
 	GtkWidget *body_revealer;
 	GtkWidget *body_grid;
 	GtkWidget *input_label;
+	GtkWidget *user_field;
 	GtkWidget *input_field;
 	GtkWidget *message_box;
 	GtkWidget *unlock_button;
@@ -35,5 +36,6 @@ void window_idle_hide(struct Window *win);
 void window_idle_show(struct Window *win);
 void window_update_clock(struct Window *ctx);
 void window_update_date(struct Window *ctx);
+void window_update_username(struct Window *ctx);
 void window_swap_focus(struct Window *win, struct Window *old);
 

@@ -9,6 +9,7 @@
 #include "window.h"
 #include "gtklock.h"
 #include "module.h"
+#include <ctype.h>
 
 void gtklock_remove_window(struct GtkLock *gtklock, struct Window *win) {
 	for(guint idx = 0; idx < gtklock->windows->len; idx++) {
@@ -63,6 +64,25 @@ void gtklock_update_dates(struct GtkLock *gtklock) {
 static int gtklock_update_dates_handler(gpointer data) {
 	struct GtkLock *gtklock = (struct GtkLock *)data;
 	gtklock_update_dates(gtklock);
+	return G_SOURCE_CONTINUE;
+}
+
+void gtklock_update_username(struct GtkLock *gtklock) {
+  char *username = getlogin();
+  username[0] = toupper(username[0]);
+	if(username == NULL) return;
+	if(gtklock->username) g_free(gtklock->username);
+	gtklock->username = username;
+
+	for(guint idx = 0; idx < gtklock->windows->len; idx++) {
+		struct Window *ctx = g_array_index(gtklock->windows, struct Window *, idx);
+		window_update_username(ctx);
+	}
+}
+
+static int gtklock_update_username_handler(gpointer data) {
+	struct GtkLock *gtklock = (struct GtkLock *)data;
+	gtklock_update_username(gtklock);
 	return G_SOURCE_CONTINUE;
 }
 
@@ -128,6 +148,8 @@ void gtklock_activate(struct GtkLock *gtklock) {
 	gtklock_update_clocks(gtklock);
 	gtklock->draw_date_source = g_timeout_add(18000000, G_SOURCE_FUNC(gtklock_update_dates_handler), gtklock);
 	gtklock_update_dates(gtklock);
+	gtklock->draw_date_source = g_timeout_add(86400000, G_SOURCE_FUNC(gtklock_update_username_handler), gtklock);
+	gtklock_update_username(gtklock);
 	if(gtklock->use_idle_hide) gtklock->idle_hide_source =
 		g_timeout_add_seconds(gtklock->idle_timeout, G_SOURCE_FUNC(gtklock_idle_handler), gtklock);
 }
