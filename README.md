@@ -1,5 +1,6 @@
 # gtklock (Forked)
 GTK-based lockscreen for Wayland.
+
 ![screenshot](screenshots/lock.png)
 
 ### Building from source
@@ -12,7 +13,6 @@ $ ninja -C builddir
 ### Using with swayidle
 ```
 swayidle -w timeout 60 'gtklock -d'
-
 ```
 
 # gtklock (Original)
