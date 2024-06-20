@@ -58,3 +58,5 @@ install_data(
   'pam/gtklock',
   install_dir : get_option('sysconfdir') / 'pam.d'
 )
+
+meson.add_install_script('install_assets.sh')
