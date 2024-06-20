@@ -1,4 +1,21 @@
-# gtklock
+# gtklock (Forked)
+GTK-based lockscreen for Wayland.
+![screenshot](screenshots/lock.png)
+
+### Building from source
+```
+$ meson setup builddir
+$ ninja -C builddir
+# meson install -C builddir
+```
+
+### Using with swayidle
+```
+swayidle -w timeout 60 'gtklock -d'
+
+```
+
+# gtklock (Original)
 GTK-based lockscreen for Wayland.
 
 ![screenshot](https://user-images.githubusercontent.com/21199271/169707623-2ac5f02b-b6ed-461a-b9a3-5d96440843a2.png)
