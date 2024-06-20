@@ -1,6 +1,8 @@
 # gtklock (Forked)
 GTK-based lockscreen for Wayland.
 
+Design inpired by [Syndrizzle](https://github.com/Syndrizzle)'s [hotfiles](https://github.com/syndrizzle/hotfiles/tree/bspwm)
+
 ![screenshot](screenshots/lock.png)
 
 ### Building from source
