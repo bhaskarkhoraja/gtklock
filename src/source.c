@@ -353,7 +353,8 @@ int main(int argc, char **argv) {
 		"font-family: 'Big-John'"
 		"}"
 		"#clock-label {"
-		"font-size: 96pt;"
+		"font-size: 20pt;"
+		"font-weight: 900;"
 		"}"
 		"#date-label {"
 		"font-size: 30px;"
@@ -363,7 +364,10 @@ int main(int argc, char **argv) {
 		"font-size: 32pt;"
 		"}"
 		"#error-label {"
-		"color: red;"
+		"color: #db4b4b;"
+		"}"
+		"#message-label {"
+		"color: #db4b4b;"
 		"}"
 	);
 

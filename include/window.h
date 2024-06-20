@@ -13,12 +13,12 @@ struct Window {
 	GtkWidget *window;
 	GtkWidget *overlay;
 	GtkWidget *window_box;
-	GtkWidget *body_revealer;
 	GtkWidget *body_grid;
 	GtkWidget *input_label;
-	GtkWidget *user_field;
 	GtkWidget *input_field;
-	GtkWidget *message_box;
+	GtkWidget *user_field;
+	GtkWidget *message_label;
+	GtkWidget *unlock_button;
 	GtkWidget *error_label;
 	GtkWidget *warning_label;
 	GtkWidget *clock_label;

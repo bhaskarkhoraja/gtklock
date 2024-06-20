@@ -33,7 +33,7 @@ void gtklock_update_clocks(struct GtkLock *gtklock) {
 	GDateTime *time = g_date_time_new_now_local();
 	if(time == NULL) return;
 	if(gtklock->time) g_free(gtklock->time);
-	gtklock->time = g_date_time_format(time, gtklock->time_format ? gtklock->time_format : "%R");
+	gtklock->time = g_date_time_format(time, gtklock->time_format ? gtklock->time_format : "%I:%M %p");
 	g_date_time_unref(time);
 
 	for(guint idx = 0; idx < gtklock->windows->len; idx++) {
@@ -158,6 +158,10 @@ void gtklock_shutdown(struct GtkLock *gtklock) {
 	if(gtklock->draw_clock_source > 0) {
 		g_source_remove(gtklock->draw_clock_source);
 		gtklock->draw_clock_source = 0;
+	}
+	if(gtklock->draw_date_source > 0) {
+		g_source_remove(gtklock->draw_date_source);
+		gtklock->draw_date_source = 0;
 	}
 	if(gtklock->idle_hide_source > 0) {
 		g_source_remove(gtklock->idle_hide_source);

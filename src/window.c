@@ -52,63 +52,18 @@ void window_update_username(struct Window *ctx) {
 
 static void window_setup_messages(struct Window *ctx);
 
-static void window_close_message(GtkInfoBar *bar, gint response, gpointer data) {
-	struct Window *ctx = window_by_widget(gtk_widget_get_toplevel(GTK_WIDGET(bar)));
-	gtk_widget_destroy(GTK_WIDGET(bar));
-	for(guint idx = 0; idx < gtklock->errors->len; idx++) {
-		char *err = g_array_index(gtklock->errors, char *, idx);
-		if(err == data) {
-			g_array_remove_index(gtklock->errors, idx);
-			g_free(err);
-			window_setup_messages(ctx);
-			return;
-		}
-	}
-	for(guint idx = 0; idx < gtklock->messages->len; idx++) {
-		char *msg = g_array_index(gtklock->messages, char *, idx);
-		if(msg == data) {
-			g_array_remove_index(gtklock->messages, idx);
-			g_free(msg);
-			window_setup_messages(ctx);
-			return;
-		}
-	}
-}
-
-static GtkInfoBar *window_new_message(struct Window *ctx, char *msg) {
-	GtkWidget *bar = gtk_info_bar_new();
-	gtk_info_bar_set_show_close_button(GTK_INFO_BAR(bar), TRUE);
-	g_signal_connect(bar, "response", G_CALLBACK(window_close_message), msg);
-	gtk_container_add(GTK_CONTAINER(ctx->message_box), bar);
-
-	GtkWidget *content_area = gtk_info_bar_get_content_area(GTK_INFO_BAR(bar));
-	GtkWidget *label = gtk_label_new(msg);
-	gtk_container_add(GTK_CONTAINER(content_area), label);
-
-	gtk_widget_show_all(bar);
-	return GTK_INFO_BAR(bar);
-}
-
 static void window_setup_messages(struct Window *ctx) {
-	if(ctx->message_box != NULL) {
-		gtk_widget_destroy(ctx->message_box);
-		ctx->message_box = NULL;
+	if(ctx->message_label != NULL) {
+    gtk_label_set_text(GTK_LABEL(ctx->message_label), "");
 	}
-	ctx->message_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-	gtk_widget_set_no_show_all(ctx->message_box, TRUE);
-	gtk_grid_attach(GTK_GRID(ctx->body_grid), ctx->message_box, 1, 1, 2, 1);
 
 	for(guint idx = 0; idx < gtklock->errors->len; idx++) {
 		char *err = g_array_index(gtklock->errors, char *, idx);
-		GtkInfoBar *bar = window_new_message(ctx, err);
-		gtk_info_bar_set_message_type(bar, GTK_MESSAGE_WARNING);
-		gtk_widget_show(ctx->message_box);
+    gtk_label_set_text(GTK_LABEL(ctx->message_label), err);
 	}
 	for(guint idx = 0; idx < gtklock->messages->len; idx++) {
 		char *msg = g_array_index(gtklock->messages, char *, idx);
-		GtkInfoBar *bar = window_new_message(ctx, msg);
-		gtk_info_bar_set_message_type(bar, GTK_MESSAGE_INFO);
-		gtk_widget_show(ctx->message_box);
+    gtk_label_set_text(GTK_LABEL(ctx->message_label), msg);
 	}
 }
 
@@ -120,6 +75,7 @@ static void window_set_busy(struct Window *ctx, gboolean busy) {
 	gdk_window_set_cursor(gtk_widget_get_window(ctx->window), cursor);
 	g_object_unref(cursor);
 
+	// gtk_widget_set_sensitive(ctx->unlock_button, !busy);
 	gtk_widget_set_sensitive(ctx->input_field, !busy);
 }
 
@@ -177,6 +133,11 @@ void window_pw_check(GtkWidget *widget, gpointer data) {
 	g_thread_new(NULL, window_pw_wait, ctx);
 }
 
+void input_field_changed(GtkWidget *widget, gpointer data) {
+	struct Window *ctx = data;
+	gtk_label_set_text(GTK_LABEL(ctx->error_label), NULL);
+}
+
 static void window_pw_set_vis(GtkEntry* entry, gboolean visibility) {
 	const char *icon = visibility ? "view-conceal-symbolic" : "view-reveal-symbolic";
 	gtk_entry_set_icon_from_icon_name(entry, GTK_ENTRY_ICON_SECONDARY, icon);
@@ -197,13 +158,11 @@ static void window_destroy_notify(GtkWidget *widget, gpointer data) {
 }
 
 void window_swap_focus(struct Window *win, struct Window *old) {
-	if(!gtklock->hidden) gtk_revealer_set_reveal_child(GTK_REVEALER(win->body_revealer), TRUE);
 
 	GtkStyleContext *win_context = gtk_widget_get_style_context(win->window);
 	gtk_style_context_add_class(win_context, "focused");
 
 	if(old != NULL && old != win) {
-		gtk_revealer_set_reveal_child(GTK_REVEALER(old->body_revealer), FALSE);
 
 		GtkStyleContext *old_context = gtk_widget_get_style_context(old->window);
 		gtk_style_context_remove_class(old_context, "focused");
@@ -232,7 +191,6 @@ void window_swap_focus(struct Window *win, struct Window *old) {
 void window_idle_hide(struct Window *ctx) {
 	GtkStyleContext *context = gtk_widget_get_style_context(ctx->window);
 	gtk_style_context_add_class(context, "hidden");
-	gtk_revealer_set_reveal_child(GTK_REVEALER(ctx->body_revealer), FALSE);
 	GdkCursor *cursor = gdk_cursor_new_for_display(gtk_widget_get_display(ctx->window), GDK_BLANK_CURSOR);
 	gdk_window_set_cursor(gtk_widget_get_window(ctx->window), cursor);
 	g_object_unref(cursor);
@@ -242,7 +200,6 @@ void window_idle_show(struct Window *ctx) {
 	GtkStyleContext *context = gtk_widget_get_style_context(ctx->window);
 	gtk_style_context_remove_class(context, "hidden");
 	if(ctx == gtklock->focused_window) {
-		gtk_revealer_set_reveal_child(GTK_REVEALER(ctx->body_revealer), TRUE);
 		gtk_entry_grab_focus_without_selecting(GTK_ENTRY(ctx->input_field));
 	}
 	GdkCursor *cursor = gdk_cursor_new_from_name(gtk_widget_get_display(ctx->window), "default");
@@ -328,7 +285,6 @@ struct Window *create_window(GdkMonitor *monitor) {
 	w->window_box = GTK_WIDGET(gtk_builder_get_object(builder, "window-box"));
 	gtk_container_add(GTK_CONTAINER(w->overlay), w->window_box);
 
-	w->body_revealer = GTK_WIDGET(gtk_builder_get_object(builder, "body-revealer"));
 	w->body_grid = GTK_WIDGET(gtk_builder_get_object(builder, "body-grid"));
 	w->input_label = GTK_WIDGET(gtk_builder_get_object(builder, "input-label"));
 
@@ -338,7 +294,8 @@ struct Window *create_window(GdkMonitor *monitor) {
 	w->user_field = GTK_WIDGET(gtk_builder_get_object(builder, "user-field"));
 	window_update_username(w);
 
-	w->message_box = GTK_WIDGET(gtk_builder_get_object(builder, "message-box"));
+	w->message_label = GTK_WIDGET(gtk_builder_get_object(builder, "message-label"));
+	w->unlock_button = GTK_WIDGET(gtk_builder_get_object(builder, "unlock-button"));
 	w->error_label = GTK_WIDGET(gtk_builder_get_object(builder, "error-label"));
 	w->warning_label = GTK_WIDGET(gtk_builder_get_object(builder, "warning-label"));
 
