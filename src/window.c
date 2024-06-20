@@ -120,7 +120,6 @@ static void window_set_busy(struct Window *ctx, gboolean busy) {
 	gdk_window_set_cursor(gtk_widget_get_window(ctx->window), cursor);
 	g_object_unref(cursor);
 
-	gtk_widget_set_sensitive(ctx->unlock_button, !busy);
 	gtk_widget_set_sensitive(ctx->input_field, !busy);
 }
 
@@ -340,7 +339,6 @@ struct Window *create_window(GdkMonitor *monitor) {
 	window_update_username(w);
 
 	w->message_box = GTK_WIDGET(gtk_builder_get_object(builder, "message-box"));
-	w->unlock_button = GTK_WIDGET(gtk_builder_get_object(builder, "unlock-button"));
 	w->error_label = GTK_WIDGET(gtk_builder_get_object(builder, "error-label"));
 	w->warning_label = GTK_WIDGET(gtk_builder_get_object(builder, "warning-label"));
 

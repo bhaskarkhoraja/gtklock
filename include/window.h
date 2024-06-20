@@ -19,7 +19,6 @@ struct Window {
 	GtkWidget *user_field;
 	GtkWidget *input_field;
 	GtkWidget *message_box;
-	GtkWidget *unlock_button;
 	GtkWidget *error_label;
 	GtkWidget *warning_label;
 	GtkWidget *clock_label;
