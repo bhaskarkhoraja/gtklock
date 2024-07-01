@@ -24,8 +24,10 @@ struct GtkLock {
 
 	guint draw_clock_source;
 	guint draw_date_source;
+	guint draw_time_source;
 	guint idle_hide_source;
 
+	gboolean follow_focus;
 	gboolean use_idle_hide;
 
 	char *time;

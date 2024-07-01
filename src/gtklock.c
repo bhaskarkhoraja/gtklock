@@ -42,9 +42,10 @@ void gtklock_update_clocks(struct GtkLock *gtklock) {
 	}
 }
 
-static int gtklock_update_clocks_handler(gpointer data) {
+static int gtklock_update_time_handler(gpointer data) {
 	struct GtkLock *gtklock = (struct GtkLock *)data;
 	gtklock_update_clocks(gtklock);
+	gtklock_update_dates(gtklock);
 	return G_SOURCE_CONTINUE;
 }
 
@@ -144,7 +145,7 @@ void gtklock_activate(struct GtkLock *gtklock) {
 	gtklock->lock = gtk_session_lock_prepare_lock();
 	gtk_session_lock_lock_lock(gtklock->lock);
 
-	gtklock->draw_clock_source = g_timeout_add(1000, G_SOURCE_FUNC(gtklock_update_clocks_handler), gtklock);
+	gtklock->draw_time_source = g_timeout_add(1000, G_SOURCE_FUNC(gtklock_update_time_handler), gtklock);
 	gtklock_update_clocks(gtklock);
 	gtklock->draw_date_source = g_timeout_add(18000000, G_SOURCE_FUNC(gtklock_update_dates_handler), gtklock);
 	gtklock_update_dates(gtklock);
@@ -155,9 +156,9 @@ void gtklock_activate(struct GtkLock *gtklock) {
 }
 
 void gtklock_shutdown(struct GtkLock *gtklock) {
-	if(gtklock->draw_clock_source > 0) {
-		g_source_remove(gtklock->draw_clock_source);
-		gtklock->draw_clock_source = 0;
+	if(gtklock->draw_time_source > 0) {
+		g_source_remove(gtklock->draw_time_source);
+		gtklock->draw_time_source = 0;
 	}
 	if(gtklock->draw_date_source > 0) {
 		g_source_remove(gtklock->draw_date_source);
