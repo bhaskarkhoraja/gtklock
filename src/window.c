@@ -1,5 +1,5 @@
 // gtklock
-// Copyright (c) 2022 Kenny Levinsen, Jovan Lanik, Erik Reider, Melih Darcan
+// Copyright (c) 2022 Kenny Levinsen, Jovan Lanik, Erik Reider, Melih Darcan, Bhaskar Khoraja
 
 // Window functions
 
@@ -66,6 +66,7 @@ static void window_setup_messages(struct Window *ctx) {
 		char *msg = g_array_index(gtklock->messages, char *, idx);
     gtk_label_set_text(GTK_LABEL(ctx->message_label), msg);
 	}
+
 }
 
 static void window_set_busy(struct Window *ctx, gboolean busy) {
